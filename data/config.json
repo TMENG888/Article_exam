@@ -1,0 +1,53 @@
+{
+  "models": [
+    {
+      "name": "智谱 Flash",
+      "api_base_url": "https://open.bigmodel.cn/api/paas/v4",
+      "api_key": "01fd01d3204444ed9ca4908161f797f1.pyaYzY1m1PNchN4z",
+      "model": "GLM-4.7-Flash",
+      "embedding_model": "embedding-3",
+      "enabled": true,
+      "thinking_enabled": false,
+      "stream_enabled": true
+    },
+    {
+      "name": "智谱 Flash Thinking",
+      "api_base_url": "https://open.bigmodel.cn/api/paas/v4",
+      "api_key": "01fd01d3204444ed9ca4908161f797f1.pyaYzY1m1PNchN4z",
+      "model": "GLM-4.1V-Thinking-Flash",
+      "embedding_model": "embedding-3",
+      "enabled": true,
+      "thinking_enabled": false,
+      "stream_enabled": true
+    },
+    {
+      "name": "智谱 Flash 20250414",
+      "api_base_url": "https://open.bigmodel.cn/api/paas/v4",
+      "api_key": "01fd01d3204444ed9ca4908161f797f1.pyaYzY1m1PNchN4z",
+      "model": "GLM-4-Flash-250414",
+      "embedding_model": "embedding-3",
+      "enabled": true,
+      "thinking_enabled": false,
+      "stream_enabled": true
+    },
+    {
+      "name": "DeepSeek R1 (思考模式)",
+      "api_base_url": "https://api.deepseek.com",
+      "api_key": "sk-4842ad9661b2442d8fbcf423afd4dc1d",
+      "model": "deepseek-reasoner",
+      "embedding_model": null,
+      "enabled": true,
+      "thinking_enabled": true
+    },
+    {
+      "name": "DeepSeek Chat",
+      "api_base_url": "https://api.deepseek.com",
+      "api_key": "sk-4842ad9661b2442d8fbcf423afd4dc1d",
+      "model": "deepseek-chat",
+      "embedding_model": null,
+      "enabled": true,
+      "thinking_enabled": true
+    }
+  ],
+  "default_model_index": 2
+}

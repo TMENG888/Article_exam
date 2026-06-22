@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章考核系统</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Top Bar -->
+        <div class="topbar">
+            <div class="topbar-brand">
+                <div class="topbar-logo"><i class="fas fa-pen-fancy"></i></div>
+                <div>
+                    <div class="topbar-title">文章考核系统</div>
+                    <div class="topbar-subtitle">AI 驱动的阅读理解评估</div>
+                </div>
+            </div>
+            <div class="topbar-actions">
+                <button class="icon-btn" onclick="openSettings()" title="API 设置">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="icon-btn" onclick="showSessions()" title="历史记录">
+                    <i class="fas fa-history"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Stepper -->
+        <div class="stepper">
+            <div class="step-item active" id="stepper-1">
+                <div class="step-circle">1</div>
+                <span class="step-label">输入文章</span>
+            </div>
+            <div class="step-line" id="line-1"></div>
+            <div class="step-item" id="stepper-2">
+                <div class="step-circle">2</div>
+                <span class="step-label">答题考核</span>
+            </div>
+            <div class="step-line" id="line-2"></div>
+            <div class="step-item" id="stepper-3">
+                <div class="step-circle">3</div>
+                <span class="step-label">考核结果</span>
+            </div>
+        </div>
+
+        <!-- Step 1: Input Article -->
+        <section class="step-section active" id="step-input">
+            <div class="card">
+                <div class="card-header">
+                    <h2>📄 输入文章内容</h2>
+                    <p>粘贴文章文本或输入文章链接，AI 将自动分析并生成考核题目</p>
+                </div>
+
+                <div class="input-tabs">
+                    <button class="input-tab active" onclick="switchInputTab('text')">
+                        <i class="fas fa-align-left" style="margin-right:6px"></i>粘贴文本
+                    </button>
+                    <button class="input-tab" onclick="switchInputTab('url')">
+                        <i class="fas fa-link" style="margin-right:6px"></i>输入链接
+                    </button>
+                </div>
+
+                <div id="input-text-area">
+                    <textarea class="article-textarea" id="article-text"
+                        placeholder="在此粘贴文章内容...&#10;&#10;支持任意专业领域的文章，系统会根据文章篇幅自动生成合适数量的选择题和简答题。"></textarea>
+                    <div class="char-count" id="char-count">0 字</div>
+                </div>
+
+                <div id="input-url-area" style="display:none">
+                    <input type="url" class="url-input" id="article-url"
+                        placeholder="输入文章 URL，例如 https://example.com/article">
+                    <div style="margin-top:10px">
+                        <button class="btn btn-secondary" onclick="fetchUrl()" id="fetch-url-btn">
+                            <i class="fas fa-download"></i> 抓取文章内容
+                        </button>
+                    </div>
+                </div>
+
+                <div class="config-row" id="score-config-row">
+                    <label for="pass-score">
+                        <i class="fas fa-bullseye" style="margin-right:6px;color:var(--primary-500)"></i>及格分数
+                    </label>
+                    <input type="number" id="pass-score" value="60" min="0" max="100">
+                    <span style="font-size:0.82rem;color:var(--text-muted)">分（满分 100）</span>
+                </div>
+
+                <div class="btn-group" id="generate-btn-group">
+                    <button class="btn btn-primary" onclick="generateExam()" id="generate-btn">
+                        <i class="fas fa-magic"></i> 生成考题
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 2: Exam -->
+        <section class="step-section" id="step-exam">
+            <div class="card" style="padding-bottom:16px">
+                <div class="exam-header">
+                    <div class="exam-title-area">
+                        <h2 id="exam-title">考核题目</h2>
+                        <p id="exam-summary"></p>
+                    </div>
+                    <div class="exam-stats">
+                        <div class="exam-stat">
+                            <i class="fas fa-list-ol"></i>
+                            <span>共 <span class="count" id="total-count">0</span> 题</span>
+                        </div>
+                        <div class="exam-stat">
+                            <i class="fas fa-check-circle"></i>
+                            <span>已答 <span class="count" id="answered-count">0</span> 题</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="progress-bar-wrap">
+                    <div class="progress-bar-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <div id="questions-container"></div>
+
+            <div class="card" style="margin-top:20px; border-top: 1px solid var(--gray-100);">
+                <div class="exam-actions" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                    <button class="btn btn-secondary" onclick="goToStep(1)" style="padding: 10px 20px;">
+                        <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> 返回修改
+                    </button>
+
+                    <button class="btn btn-primary" onclick="submitExam()" id="submit-btn"
+                            style="padding: 10px 32px; font-weight: 600; box-shadow: 0 4px 12px rgba(20, 184, 166, 0.25);">
+                        <i class="fas fa-paper-plane" style="margin-right: 8px;"></i> 提交答卷
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Results -->
+        <section class="step-section" id="step-results">
+            <div class="card">
+                <div class="results-hero">
+                    <div class="score-ring" id="score-ring">
+                        <svg viewBox="0 0 120 120">
+                            <circle class="score-ring-bg" cx="60" cy="60" r="52"></circle>
+                            <circle class="score-ring-fill" id="score-ring-fill" cx="60" cy="60" r="52"
+                                stroke-dasharray="326.73" stroke-dashoffset="326.73"></circle>
+                        </svg>
+                        <div class="score-value">
+                            <div class="score-number" id="final-score">0</div>
+                            <div class="score-unit">分</div>
+                        </div>
+                    </div>
+                    <div class="pass-badge" id="pass-badge"></div>
+                    <div class="results-summary" id="results-summary"></div>
+                </div>
+            </div>
+
+            <div style="margin-top:20px">
+                <h3 style="font-size:1.05rem;font-weight:600;color:var(--gray-700);margin-bottom:16px">
+                    <i class="fas fa-clipboard-check" style="margin-right:8px;color:var(--primary-500)"></i>答题详情
+                </h3>
+                <div id="review-container"></div>
+            </div>
+
+            <div class="btn-group" style="justify-content:center;margin-top:32px">
+                <button class="btn btn-primary" onclick="resetExam()">
+                    <i class="fas fa-redo"></i> 重新考核
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <h3 id="loading-title">正在处理</h3>
+            <p id="loading-text">请稍候...</p>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal">
+            <h3><i class="fas fa-cog" style="margin-right:8px"></i>API 设置</h3>
+            <p>配置大模型 API 连接信息，支持 OpenAI 兼容接口</p>
+
+            <div class="form-group">
+                <label>选择模型</label>
+                <select class="form-input" id="cfg-models-list">
+                    <!-- 动态加载 -->
+                </select>
+                <div class="form-hint">从已配置的模型中选择一个作为默认模型</div>
+            </div>
+
+            <div class="form-group">
+                <label>API Base URL</label>
+                <input type="text" class="form-input" id="cfg-base-url"
+                    placeholder="https://open.bigmodel.cn/api/paas/v4">
+                <div class="form-hint">当前选中模型的 API 地址，可修改</div>
+            </div>
+
+            <div class="form-group">
+                <label>API Key</label>
+                <input type="password" class="form-input" id="cfg-api-key"
+                    placeholder="输入你的 API Key">
+                <div class="form-hint">密钥仅保存在服务器本地，不会外传</div>
+            </div>
+
+            <div class="form-group">
+                <label>模型名称</label>
+                <input type="text" class="form-input" id="cfg-model"
+                    placeholder="glm-4.7-flash">
+                <div class="form-hint">如 glm-4-flash、glm-4-plus、gpt-4o、deepseek-reasoner 等</div>
+            </div>
+
+            <div class="form-group" style="border-top: 1px dashed #eee; padding-top: 16px; margin-top: 8px;">
+                <label style="color: #4a90e2;">🚀 阶段化模型配置</label>
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.9rem; color: var(--gray-700);">1. 知识提取/Map-Reduce 模型：</label>
+                    <select class="form-input" id="extract-model-select">
+                        <option value="-1">跟随默认模型</option>
+                    </select>
+                    <div class="form-hint">用于长文分析，建议选速度快、成本低的模型。</div>
+                </div>
+
+                <div>
+                    <label style="font-size: 0.9rem; color: var(--gray-700);">2. 正式出题模型：</label>
+                    <select class="form-input" id="generate-model-select">
+                        <option value="-1">跟随默认模型</option>
+                    </select>
+                    <div class="form-hint">用于生成最终题目，建议选逻辑强、质量高的模型。</div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeSettings()">取消</button>
+                <button class="btn btn-primary" onclick="saveSettings()">
+                    <i class="fas fa-check"></i> 保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sessions Modal -->
+    <div class="modal-overlay" id="sessions-modal">
+        <div class="modal" style="max-width:600px">
+            <h3><i class="fas fa-history" style="margin-right:8px"></i>历史记录</h3>
+            <p>查看和恢复之前的考核记录</p>
+            <div id="sessions-modal-list" style="max-height:400px;overflow-y:auto"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeSessions()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
